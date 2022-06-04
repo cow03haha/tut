@@ -11,18 +11,33 @@ module.exports = {
             }
             catch (error) {
                 console.log(error)
-                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
             }
         }
-        else if (interaction.isModalSubmit()) {
-            const command = interaction.client.commands.get('匿名')
+        else if (interaction.isButton()) {
+            if (interaction.customId.startsWith('anoymous')) {
+                const command = interaction.client.commands.get('匿名')
 
-            try {
-                await command.send(interaction)
+                try {
+                    await command.check(interaction)
+                }
+                catch (error) {
+                    console.log(error)
+                }
             }
-            catch (error) {
-                console.log(error)
-                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true })
+        }
+        else if (interaction.isSelectMenu()) {
+            await interaction.deferUpdate()
+        }
+        else if (interaction.isModalSubmit()) {
+            if (interaction.customId === 'anoymous') {
+                const command = interaction.client.commands.get('匿名')
+
+                try {
+                    await command.send(interaction)
+                }
+                catch (error) {
+                    console.log(error)
+                }
             }
         }
     },
