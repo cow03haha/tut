@@ -1,6 +1,13 @@
+const { MessageEmbed } = require('discord.js')
+
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction) {
+        const embed_err = (msg) => new MessageEmbed()
+            .setColor('RED')
+            .setTitle('Error')
+            .setDescription(msg)
+
         if (interaction.isCommand()) {
             const command = interaction.client.commands.get(interaction.commandName)
 
@@ -11,6 +18,7 @@ module.exports = {
             }
             catch (error) {
                 console.log(error)
+                await interaction.reply({ embeds: [embed_err(error.message)] })
             }
         }
         else if (interaction.isButton()) {
@@ -22,6 +30,7 @@ module.exports = {
                 }
                 catch (error) {
                     console.log(error)
+                    await interaction.reply({ embeds: [embed_err(error.message)] })
                 }
             }
         }
@@ -37,6 +46,7 @@ module.exports = {
                 }
                 catch (error) {
                     console.log(error)
+                    await interaction.reply({ embeds: [embed_err(error.message)] })
                 }
             }
         }

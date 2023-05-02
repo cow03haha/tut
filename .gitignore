@@ -131,3 +131,4 @@ dist
 
 # project
 config.json
+serviceAccountKey.json

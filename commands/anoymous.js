@@ -24,7 +24,7 @@ module.exports = {
         await interaction.showModal(modal)
     },
     async send(interaction) {
-        const channel = await interaction.guild.channels.fetch('966733139751862353')
+        const channel = await interaction.guild.channels.fetch('877838515575062548')
         const input = interaction.fields.getTextInputValue('input')
         const image = interaction.fields.getTextInputValue('image')
         const embed = new MessageEmbed()
@@ -33,7 +33,7 @@ module.exports = {
             .setDescription(`**${input}**`)
             .setTimestamp(interaction.createdAt)
             .setFooter({ text: `成員ID: ${interaction.user.id}` })
-        if (image.startsWith('http')) embed.setImage(image)
+        if (image.startsWith('https')) embed.setImage(image)
         const row = new MessageActionRow()
             .addComponents(
                 new MessageButton()
@@ -58,7 +58,7 @@ module.exports = {
         }
 
         if (interaction.component.style === 'SUCCESS') {
-            const channel = await interaction.guild.channels.fetch('976152113862279198')
+            const channel = await interaction.guild.channels.fetch('742918509037879368')
             const embed = interaction.message.embeds[0].setTitle('').setAuthor(null).setFooter(null).setTimestamp()
             await interaction.update({ content: '`審核成功!`', components: row })
             await channel.send({ embeds: [embed] })
