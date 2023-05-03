@@ -22,15 +22,17 @@ async function log(snapshot, oldState, newState) {
 async function dynamic_voice(snapshot, oldState, newState) {
     const queue = snapshot.child('queue').val()
 
-    if (Object.keys(queue ? queue : {}).includes(oldState.channelId)) {
-        if (!oldState.channel.members.size) {
-            try {
-                await oldState.channel.delete('auto voice')
+    if (oldState.channel) {
+        if (Object.keys(queue ? queue : {}).includes(oldState.channelId)) {
+            if (!oldState.channel.members.size) {
+                try {
+                    await oldState.channel.delete('auto voice')
+                }
+                catch (error) {
+                    // pass
+                }
+                await snapshot.child(`queue/${oldState.channelId}`).ref.remove()
             }
-            catch (error) {
-                // pass
-            }
-            await snapshot.child(`queue/${oldState.channelId}`).ref.remove()
         }
     }
 
