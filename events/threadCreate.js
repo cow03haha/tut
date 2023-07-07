@@ -9,7 +9,7 @@ async function chatgpt(snapshot, thread, newly) {
     const title = thread.name,
         msg = await thread.fetchStarterMessage()
 
-    const [ last_msg, content, conversation_id ] = await talk(msg.content)
+    const [ last_msg, content, conversation_id ] = await talk('#zh-tw' + msg.content)
     await setTitle(title, conversation_id)
     await snapshot.child(`talk/${thread.id}`).ref.set({
         conversation: conversation_id,

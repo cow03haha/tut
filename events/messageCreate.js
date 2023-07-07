@@ -11,12 +11,14 @@ async function keyword(snapshot, message) {
     await channel.send(list[message.content])
 }
 
+let chat = false
 async function chatgpt(snapshot, message) {
     const ch = message.channel
     const start_check = async () => {
         const msgs = await ch.messages.fetch()
         return msgs.size === 1
     }
+    if (chat) return
     if (!ch.isThread()) return
     if (ch.parentId !== snapshot.child('forum_id').val()) return
     if (await start_check()) return
@@ -30,12 +32,14 @@ async function chatgpt(snapshot, message) {
 
     const waiting = await ch.send({ content: '等待回復...', fetchReply: true })
 
+    chat = true
     const [ last_msg, content ] = await talk(
-        message.content,
+        '#zh-tw' + message.content,
         snapshot.child(`talk/${ch.id}/last_msg`).val(),
         snapshot.child(`talk/${ch.id}/conversation`).val(),
     )
     await snapshot.child(`talk/${ch.id}/last_msg`).ref.set(last_msg)
+    chat = false
 
     await waiting.edit({ content: content })
 }
