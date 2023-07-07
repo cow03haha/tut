@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { Client, Collection, Intents } = require('discord.js')
-const { token2: token } = require('./config.json')
+const { token } = require('./config.json')
 const admin = require('firebase-admin')
 const serviceAccount = require('./serviceAccountKey.json')
 
