@@ -3,28 +3,47 @@ const { SlashCommandBuilder } = require('@discordjs/builders')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('clear')
-        .setDescription('clear channel message')
+        .setDescription('clear channel message that are newer than two week')
         .setDefaultPermission(false)
-        .addSubcommand(subcommand =>
+        .addSubcommand((subcommand) =>
             subcommand
-                .setName('after')
-                .setDescription('clear channel message after message id you specific')
-                .addStringOption(option =>
+                .setName('amount')
+                .setDescription(
+                    'clear specific amount of messages',
+                )
+                .addIntegerOption((option) =>
                     option
-                        .setName('id')
-                        .setDescription('message id of you specific')
-                        .setRequired(true))),
+                        .setName('nums')
+                        .setDescription('number of messages you want clear(limit: 100)')
+                        .setRequired(true),
+                ),
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('all')
+                .setDescription('clear all message that are newer then two week in channel'),
+        ),
     async execute(interaction) {
-        const reply = await interaction.reply({ content: 'Deleting..', fetchReply: true })
+        await interaction.reply('Deleting..., this may take some time')
 
-        const channel = interaction.channel
-        const target = await channel.messages.fetch(interaction.options.getString('id'))
-        const messages = await channel.messages.fetch({ after: target.id, before: reply.id })
+        const ch = interaction.channel
+        let total = 0
+        if (interaction.options.getSubcommand() === 'all') {
+            while (true) {
+                const deleted = await ch.bulkDelete(100)
+                total += deleted.size
+                if (deleted.size < 100) break
+            }
+        }
+        else {
+            const deleted = await ch.bulkDelete(interaction.options.getInteger('nums') + 1)
+            total += deleted.size
+        }
 
-        const deletedMessages = await channel.bulkDelete(
-            [...Array.from(messages.values()), target]
-                .filter(msg => msg !== reply), true)
-        await reply.edit(`Delete success!\nAmount: **${deletedMessages.size}**`)
+        const reply = await ch.send({
+            content: `Delete success!\nAmount: **${total - 1}**`,
+            fetchReply: true,
+        })
         setTimeout(() => reply.delete(), 5000)
     },
 }

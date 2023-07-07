@@ -2,6 +2,41 @@ const { MessageEmbed, Formatters } = require('discord.js')
 const { getDatabase } = require('firebase-admin/database')
 const db = getDatabase()
 
+const count = {}
+async function clear_interval(client, guildId) {
+    count[guildId].during++
+    if (count[guildId].during >= 3600) {
+        const guild = await client.guilds.fetch(guildId)
+        const ch = await guild.channels.fetch(count[guildId].ch)
+
+        while (true) {
+            const deleted = await ch.bulkDelete(100)
+            if (deleted.size < 100) break
+        }
+        clearInterval(count[guildId].interval)
+        delete count[guildId]
+    }
+}
+
+async function auto_clear(snapshot, oldState, newState) {
+    const guild = newState.guild
+    const voiceStates = guild.voiceStates.cache
+
+    if (voiceStates.every(voice => voice.channelId === null)) {
+        count[guild.id] = {
+            ch: snapshot.child('ch').val(),
+            interval: null,
+            during: 0,
+        }
+        const interval = setInterval(clear_interval, 1000, newState.client, guild.id)
+        count[guild.id].interval = interval
+    }
+    else if (voiceStates.size && count[guild.id]) {
+        clearInterval(count[guild.id].interval)
+        delete count[guild.id]
+    }
+}
+
 async function log(snapshot, oldState, newState) {
     let ch = snapshot.child('channel').val()
     ch = await newState.guild.channels.fetch(ch.voice ? ch.voice : ch.default)
@@ -72,13 +107,8 @@ module.exports = {
     async execute(oldState, newState) {
         const ref = db.ref(`/guild/${newState.guild.id}/func`)
         const snapshot = await ref.once('value')
-        if (snapshot.val().log.en) log(snapshot.child('log/data'), oldState, newState)
-        if (snapshot.val().dynamic_voice.en) {
-            await dynamic_voice(
-                snapshot.child('dynamic_voice/data'),
-                oldState,
-                newState,
-            )
-        }
+        if (snapshot.val().auto_clear.en) await auto_clear(snapshot.child('auto_clear/data'), oldState, newState)
+        if (snapshot.val().log.en) await log(snapshot.child('log/data'), oldState, newState)
+        if (snapshot.val().dynamic_voice.en) await dynamic_voice(snapshot.child('dynamic_voice/data'), oldState, newState)
     },
 }
