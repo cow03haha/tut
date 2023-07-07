@@ -30,18 +30,18 @@ async function chatgpt(snapshot, message) {
         return
     }
 
+    chat = true
     const waiting = await ch.send({ content: '等待回復...', fetchReply: true })
 
-    chat = true
     const [ last_msg, content ] = await talk(
-        '#zh-tw' + message.content,
+        '#zh-tw ' + message.content,
         snapshot.child(`talk/${ch.id}/last_msg`).val(),
         snapshot.child(`talk/${ch.id}/conversation`).val(),
     )
     await snapshot.child(`talk/${ch.id}/last_msg`).ref.set(last_msg)
-    chat = false
 
     await waiting.edit({ content: content })
+    chat = false
 }
 
 module.exports = {
