@@ -47,7 +47,7 @@ async function chatgpt(snapshot, message) {
 module.exports = {
     name: 'messageCreate',
     async execute(message) {
-        if (message.author.bot) return
+        if (message.author.bot || message.system) return
 
         const ref = db.ref(`/guild/${message.guildId}/func`)
         const snapshot = await ref.once('value')
