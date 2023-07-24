@@ -147,5 +147,3 @@ async function refresh(token) {
 
     console.log(res.data)
 }
-
-console.log(await auth0())

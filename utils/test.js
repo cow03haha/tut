@@ -93,7 +93,7 @@ async function talk(msg, parent_msg = uuid4(), conversation = null) {
         headers: header,
     })
     let payload = res.data.split('\n\n')
-    payload = JSON.parse(payload[payload.length - 3].slice(6))
+    payload = JSON.parse(payload[payload.length - 4].slice(6))
 
     return [
         payload.message.id,

@@ -21,11 +21,11 @@ async function log(snapshot, member) {
         .addFields([
             {
                 name: 'invite by',
-                value: `${inviteBy ? Formatters.userMention(inviteBy.inviterId) : '???'}`,
+                value: `${inviteBy ? Formatters.userMention(inviteBy.inviterId) : '(one-time use invite)'}`,
             },
             {
                 name: 'invite code',
-                value: `${inviteBy ? inviteBy.code : '???'}`,
+                value: `${inviteBy ? inviteBy.code : '(one-time use invite)'}`,
             },
         ])
         .setTimestamp(member.joinedAt)
