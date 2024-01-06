@@ -78,7 +78,7 @@ async function dynamic_voice(snapshot, oldState, newState) {
                 type: 'GUILD_VOICE',
                 permissionOverwrites: [
                     {
-                        id: newState.channel.guild.roles.everyone,
+                        id: newState.guild.roles.everyone,
                         allow: 'VIEW_CHANNEL',
                         type: 'role',
                     },
@@ -102,6 +102,59 @@ async function dynamic_voice(snapshot, oldState, newState) {
     }
 }
 
+async function tomb(snapshot, oldState, newState) {
+    const entry = await oldState.guild.channels.fetch(snapshot.child('entry').val())
+    const queue = await snapshot.child('queue').val()
+
+    if (oldState.channel) {
+        if (Object.keys(queue ? queue : {}).includes(oldState.channelId)) {
+            if (!oldState.channel.members.size) {
+                try {
+                    await oldState.channel.delete('auto voice')
+                }
+                catch (error) {
+                    // pass
+                }
+                await snapshot.child(`queue/${oldState.channelId}`).ref.remove()
+                await entry.edit({
+                    permissionOverwrites: [
+                        {
+                            id: newState.guild.roles.everyone,
+                            allow: 'VIEW_CHANNEL',
+                            type: 'role',
+                        },
+                    ],
+                }, 'fun')
+            }
+        }
+    }
+
+    if (newState.channel === entry) {
+        const ch = await newState.channel.parent.createChannel(
+            `✝${newState.member.displayName}✝`,
+            {
+                type: 'GUILD_VOICE',
+                userLimit: 1,
+                parent: newState.channel.parent,
+                position: entry.position + 1,
+                reason: 'fun',
+            },
+        )
+
+        await newState.setChannel(ch, 'fun')
+        await entry.edit({
+            permissionOverwrites: [
+                {
+                    id: newState.guild.roles.everyone,
+                    deny: 'VIEW_CHANNEL',
+                    type: 'role',
+                },
+            ],
+        }, 'fun')
+        await snapshot.child(`queue/${ch.id}`).ref.set(true)
+    }
+}
+
 module.exports = {
     name: 'voiceStateUpdate',
     async execute(oldState, newState) {
@@ -110,5 +163,6 @@ module.exports = {
         if (snapshot.val().auto_clear.en) await auto_clear(snapshot.child('auto_clear/data'), oldState, newState)
         if (snapshot.val().log.en) await log(snapshot.child('log/data'), oldState, newState)
         if (snapshot.val().dynamic_voice.en) await dynamic_voice(snapshot.child('dynamic_voice/data'), oldState, newState)
+        if (snapshot.val().fun.tomb.en) await tomb(snapshot.child('fun/tomb/data'), oldState, newState)
     },
 }

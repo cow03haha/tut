@@ -82,6 +82,17 @@ module.exports = {
                     },
                     en: false,
                 },
+                fun: {
+                    tomb: {
+                        data: {
+                            queue: {
+                                // id: true
+                            },
+                            entry: 'id',
+                        },
+                        en: false,
+                    },
+                },
             },
         }
 
