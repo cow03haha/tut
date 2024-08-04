@@ -54,7 +54,10 @@ module.exports = {
                             voice: false,
                         },
                         invite: {
-                            // invite_code: total(int)
+                            // invite_code: {
+                            //     uses: int,
+                            //     inviterId: str,
+                            // }
                         },
                     },
                     en: false,

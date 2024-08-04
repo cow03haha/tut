@@ -16,9 +16,12 @@ module.exports = {
             const invite = {}
             for (const [, v] of await guild.invites.fetch()) {
                 console.log(v.code)
-                invite[v.code] = v.uses
+                invite[v.code] = {
+                    uses: v.uses,
+                    inviterId: v.inviterId,
+                }
             }
-            await ref.update(invite)
+            await ref.set(invite)
             count++
         }
 

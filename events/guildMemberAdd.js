@@ -5,10 +5,20 @@ const db = getDatabase()
 async function log(snapshot, member) {
     const before = snapshot.child('invite').val()
     const now = await member.guild.invites.fetch()
+    // console.dir(now)
     let inviteBy = null
-    for (const i of now.values()) {
-        if (i.uses > before[i.code]) {
-            inviteBy = i
+    for (const [code, i] of Object.entries(before)) {
+        if (now.get(code) === undefined) {
+            inviteBy = {
+                code: code,
+                ...i,
+            }
+            await snapshot.child(`invite/${inviteBy.code}`).ref.remove()
+            break;
+        }
+        else if (i.uses < now.get(code).uses) {
+            inviteBy = now.get(code)
+            await snapshot.child(`invite/${inviteBy.code}/uses`).ref.set(inviteBy.uses)
             break;
         }
     }
@@ -21,18 +31,17 @@ async function log(snapshot, member) {
         .addFields([
             {
                 name: 'invite by',
-                value: `${inviteBy ? Formatters.userMention(inviteBy.inviterId) : '(one-time use invite)'}`,
+                value: `${inviteBy ? Formatters.userMention(inviteBy.inviterId) : '(???)'}`,
             },
             {
                 name: 'invite code',
-                value: `${inviteBy ? inviteBy.code : '(one-time use invite)'}`,
+                value: `${inviteBy ? inviteBy.code : '(???)'}`,
             },
         ])
         .setTimestamp(member.joinedAt)
     let ch = snapshot.child('channel').val()
     ch = await member.guild.channels.fetch(ch.member ? ch.member : ch.default)
     await ch.send({ embeds:[embed] })
-    if (inviteBy) await snapshot.child(`invite/${inviteBy.code}`).ref.set(inviteBy.uses)
 }
 
 module.exports = {
