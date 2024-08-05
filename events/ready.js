@@ -67,6 +67,6 @@ module.exports = {
             await db.ref(`/cache/${id}`).remove()
             console.log('===========================')
         }
-        console.log('done!')
+        console.log('\ndone!')
     },
 }
