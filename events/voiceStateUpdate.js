@@ -93,6 +93,7 @@ async function dynamic_voice(snapshot, oldState, newState) {
                     },
                 ],
                 parent: newState.channel.parent,
+                position: newState.channel.position + 1,
                 reason: 'auto voice',
             },
         )

@@ -29,6 +29,7 @@ module.exports = {
         .setDefaultPermission(false),
     async execute(interaction) {
         const struct = {
+            name: 'str',
             func: {
                 anoymous: {
                     data: {
@@ -100,7 +101,8 @@ module.exports = {
         }
 
         let total = 0
-        for (const [guildId] of interaction.client.guilds.cache) {
+        for (const [guildId, guild] of interaction.client.guilds.cache) {
+            struct.name = guild.name
             const snapshot = await db.ref(`/guild/${guildId}`).once('value')
             const data = snapshot.val() ? snapshot.val() : {}
 
