@@ -15,10 +15,11 @@ module.exports = {
             const ref = db.ref(`/guild/${guild.id}/func/log/data/invite`)
             const invite = {}
             for (const [, v] of await guild.invites.fetch()) {
-                console.log(v.code)
+                console.log(`${v.code}: ${v.expiresTimestamp}`)
                 invite[v.code] = {
                     uses: v.uses,
                     inviterId: v.inviterId,
+                    expires: v.expiresTimestamp,
                 }
             }
             await ref.set(invite)

@@ -9,6 +9,7 @@ module.exports = {
         await ref.child(`log/data/invite/${invite.code}`).ref.set({
             uses: 0,
             inviterId: invite.inviterId,
+            expires: invite.expiresTimestamp,
         })
     },
 }

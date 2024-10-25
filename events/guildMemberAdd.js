@@ -3,23 +3,29 @@ const { MessageEmbed, Formatters } = require('discord.js')
 const db = getDatabase()
 
 async function log(snapshot, member) {
+    if (member.user.bot) return
     const before = snapshot.child('invite').val()
     const now = await member.guild.invites.fetch()
     // console.dir(now)
     let inviteBy = null
     for (const [code, i] of Object.entries(before)) {
         if (now.get(code) === undefined) {
+            if (i.expires !== null && i.expires < Date.now()) {
+                await snapshot.child(`invite/${code}`).ref.remove()
+                continue
+            }
+
             inviteBy = {
                 code: code,
                 ...i,
             }
             await snapshot.child(`invite/${inviteBy.code}`).ref.remove()
-            break;
+            break
         }
         else if (i.uses < now.get(code).uses) {
             inviteBy = now.get(code)
             await snapshot.child(`invite/${inviteBy.code}/uses`).ref.set(inviteBy.uses)
-            break;
+            break
         }
     }
 
